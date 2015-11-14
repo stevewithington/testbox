@@ -42,7 +42,7 @@ component extends="testbox.system.BaseSpec"{
 			}
 
 		 	it(
-		 		title="Should be able to load an empty contentBean",
+		 		title="Should be able to load an empty categoryBean",
 			 	body=function() {
 			 		bean=$.getBean(entityName);
 				 	expect( bean ).toBeInstanceOf('mura.category.categoryBean');
