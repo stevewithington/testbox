@@ -10,9 +10,8 @@ component extends="testbox.system.BaseSpec"{
 	}
 
 	function afterAll(){
-		if(isDefined('bean') && bean.exists()){
-			bean.delete();
-		}
+		var $=application.serviceFactory.getBean('$').init('default');
+		$.getBean('content').loadBy(contentid="0000000000000000000000000000000test").delete();
 		console( "Executed afterAll() at #now()#" );
 	}
 
@@ -23,6 +22,7 @@ component extends="testbox.system.BaseSpec"{
 
 		 	var config={
 				title="My Unit Test",
+				menutitle="My Unit Testing Calendar",
 				filename="my-unit-test",
 				urltitle="my-unit-test",
 				siteID="default",
@@ -70,7 +70,7 @@ component extends="testbox.system.BaseSpec"{
 			it(
 				title="Should be able to save",
 			 	body=function() {
-				 	expect( data.bean.set(data.config).save().exists() ).toBeTrue;
+				 	expect( data.bean.set(data.config).save().exists() ).toBeTrue();
 				},
 				data={
 					bean=bean,
@@ -78,7 +78,6 @@ component extends="testbox.system.BaseSpec"{
 				}
 			);
 
-			
 			var loadChecks=['contentid','remoteid','filename','title','urltitle'];
 
 			for(var key in loadChecks){
@@ -99,7 +98,27 @@ component extends="testbox.system.BaseSpec"{
 
 			}
 
-			bean.delete();
+			if($.siteConfig('cache')){
+				for(var key in loadChecks){
+					var args={'#key#'=config[key]};
+
+					it(
+						title="Should load by #key# from cache",
+				 		body=function() {
+					 		var bean=data.$.getBean(data.entityName).loadBy(argumentCollection=data.args);
+						 	expect( bean.getFromMuraCache() ).toBeTrue();
+						},
+						data={
+							entityName=entityName,
+							args=args,
+							$=$
+						}
+					);
+
+				}
+			}
+
+			bean=$.getBean(entityName).loadBy(contentid=config.contentid).delete();
 
 		});
 
@@ -107,6 +126,7 @@ component extends="testbox.system.BaseSpec"{
 
 		 	var calendarConfig={
 				title="My Unit Testing Calendar",
+				menutitle="My Unit Testing Calendar",
 				filename="my-unit-testing-calendar",
 				urltitle="my-unit-testing-calendar",
 				siteID="default",
